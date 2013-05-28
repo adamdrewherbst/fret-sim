@@ -1,0 +1,8 @@
+.trace {
+	width: 500px;
+	height: 250px;
+}
+td, th {
+	padding-left: 4px;
+	padding-right: 4px;
+}

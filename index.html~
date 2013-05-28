@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <link rel="stylesheet" href="style.css" />
+        <script type="text/javascript" src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
+        <script type="text/javascript" src="../jquery-flot/jquery.flot.js"></script>
+        <script type="text/javascript" src="../jquery-flot/flot-axislabels/jquery.flot.axislabels.js"></script>
+        <script src='script.js'></script>
+		<title>ECOM Simulation</title>
+	</head>
+	<body>
+		<form>
+			<p>Enter the number of sample traces to combine.  If less than 10, the individual traces will be displayed above the combined trace.  
+			<br/>If larger than 1000 it may take a while.</p>
+			<span>N = </span>
+			<input id='num_traces' type='text' width=5 />
+			<button id='simulate' type='button'>Simulate</button>
+			<span id='msg'>Click to simulate</span>
+			<p><div id='sim_specs'>
+				<table border="1">
+					<thead>
+						<tr><th colspan="2">Simulation Specs</th></tr>
+						<tr>
+							<th>Field</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr></tr>
+						<tr></tr>
+					</tbody>
+				</table>
+			</div></p>
+			<div id='single_trace'>
+				<!--individual traces will be inserted here if N < 10-->
+				<p id='header'></p>
+			</div>
+			<div id='combined_trace'>
+				<p id='header'></p>
+				<div class='trace' type='combined'></div>
+			</div>
+		</form>
+	</body>
+</html>
+

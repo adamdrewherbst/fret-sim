@@ -1,0 +1,92 @@
+var numTraces = 200; //number of traces to combine
+
+function simulate() {
+
+	$('#msg').html('Simulating with n = ' + numTraces);
+	$('.trace[type="individual"]').remove();
+	
+	//simulation specs
+	var showIndividual = numTraces < 10;
+	var framesPerTrace = 3;
+	var timePerFrame = 219; //ms
+	var samplesPerFrame = 219; //1 sample per ms
+	var samplesPerTrace = framesPerTrace * samplesPerFrame;
+	var timePerSample = 1.0 * timePerFrame / samplesPerFrame;
+	var data = [], combData = [];
+	for(var s = 0; s < samplesPerTrace; s++) data[s] = combData[s] = 0;
+	
+	//trace display specs
+	var plot = [[[]]], framesInView = 1.2, plot_width = Math.round(framesInView * samplesPerFrame), plot_center = Math.floor(samplesPerTrace/2);
+	for(var s = plot_center - plot_width; s < plot_center + plot_width; s++) {
+		plot[0][s] = [];
+		plot[0][s][0] = plot[0][s][1] = 0;
+	}
+	var axisOpts = {
+		xaxis: {
+			axisLabel: 'Time (ms)',
+			axisLabelUseCanvas: true
+		},
+		yaxis: {
+			axisLabel: 'FRET',
+			axisLabelUseCanvas: true
+		}
+	};
+	//display the specs on the html page
+	$table = $('#sim_specs tbody');
+	$table.empty();
+	$table.append('<tr><td>FRET Frames Displayed</td><td>' + (2*framesInView).toFixed(1) + '</td></tr>');
+	$table.append('<tr><td>Time Per Frame</td><td>' + timePerFrame + ' ms</td></tr>');
+	$table.append('<tr><td>Samples Per Frame</td><td>' + samplesPerFrame + '</td><tr>');
+	
+	if(showIndividual) $('#single_trace #header').html('Individual Traces (n = ' + numTraces + ')');
+	else $('#single_trace #header').empty();
+	for(var i = 0; i < numTraces; i++) {
+		//pick a start time relative to the frame
+		var start = Math.floor(Math.random() * samplesPerFrame), curX = 0, iter = 1;
+		//populate the individual trace and combined trace
+		do {
+			var w = iter == 1 ? start : samplesPerTrace-curX < samplesPerFrame ? samplesPerTrace-curX : samplesPerFrame;
+			var fret = Math.max(Math.min(1.0 * (curX+w - samplesPerTrace/2) / samplesPerFrame, 1.0), 0.0);
+			for(var s = curX; s < curX + w; s++) {
+				data[s] = fret;
+				combData[s] += fret;
+			}
+			curX += w;
+			iter++;
+			console.log('trace ' + i + ': ' + curX + ', ' + w);
+		}while(curX < samplesPerTrace);
+		
+		//if N < 10, show the desired portion of each individual trace above the combined trace
+		if(!showIndividual) continue;
+		for(var s = plot_center-plot_width; s < plot_center+plot_width; s++) {
+			plot[0][s][0] = s * timePerSample - timePerFrame*framesPerTrace/2;
+			plot[0][s][1] = data[s];
+		}
+		$div = $('<div class="trace" type="individual"></div>');
+		$('#single_trace').append($div);
+		$.plot($div, plot, axisOpts);
+	}
+	
+	//display the desired portion of the combined trace
+	for(var s = plot_center-plot_width; s < plot_center+plot_width; s++) {
+		plot[0][s][0] = s * timePerSample - timePerFrame*framesPerTrace/2;
+		plot[0][s][1] = combData[s] / numTraces;
+	}
+	$('#combined_trace > p').html('Combined Trace (n = ' + numTraces + ')');
+	$.plot($('.trace[type="combined"]'), plot, axisOpts);
+	$('#msg').html('Click to simulate');
+}
+
+$(document).ready(function() {
+	simulate();
+	$('#simulate').click(function() {
+		var num = parseInt($('#num_traces').val());
+		if(isNaN(num)) {
+			$('#msg').html('Must enter a number');
+			return;
+		}
+		numTraces = num;
+		simulate();
+	});
+});
+
